@@ -1,0 +1,285 @@
+package padhobanking;
+import java.io.Serializable;
+import java.text.*;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
+public class Customer implements Serializable {
+	
+    private static final long serialVersionUID = 1L;
+	private long customernumber;
+	String customername;
+	String dob;
+	String address;
+	boolean kycenabled;
+	String aadharnumber;
+	Date createDate;
+	Date modifiedDate;
+	ArrayList<String> savingsAccount = new ArrayList<>();
+	ArrayList<Boolean> savingsActive = new ArrayList<>();
+	ArrayList<String> saCreateDate = new ArrayList<>();
+	ArrayList<String> currentAccount = new ArrayList<>();
+	ArrayList<Boolean> caActive = new ArrayList<>();
+	ArrayList<String> caCreateDate = new ArrayList<>();
+	ArrayList<String> loanAccount = new ArrayList<>();
+	ArrayList<Boolean> laActive = new ArrayList<>();
+	ArrayList<String> laCreateDate = new ArrayList<>();
+	ArrayList<String> dematAccount = new ArrayList<>();
+	ArrayList<Boolean> daActive = new ArrayList<>();
+	ArrayList<String> daCreateDate = new ArrayList<>();
+	ArrayList<String> debitCard = new ArrayList<>();
+	ArrayList<Boolean> dcActive = new ArrayList<>();
+	ArrayList<String> dcCreateDate = new ArrayList<>();	
+	ArrayList<String> creditCard = new ArrayList<>();
+	ArrayList<Boolean> ccActive = new ArrayList<>();
+	ArrayList<String> ccCreateDate = new ArrayList<>();
+
+	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");  
+	LocalDate now = LocalDate.now();  
+	String today = dtf.format(now);
+	
+	public Customer()
+	{
+		
+	}
+	
+	 String getCustomername() {
+		return customername;
+	}
+	public boolean setCustomername(String customername){
+		if(customername.matches("[a-zA-Z]+")){
+			this.customername = customername;
+			return true;
+		}
+		else{
+			System.err.println("< Invalid characters, plz try again >");	
+			return false;
+			}
+		
+	}
+	public long getCustomernumber(){
+		return customernumber;
+	}
+	public long setCustomernumber(long customernumber){
+		String s =Long.toString(customernumber);
+		if(s.length()<=15){
+			System.out.println("coreect");
+		this.customernumber=customernumber;
+		}
+		
+		return customernumber;
+	}
+	public String getDob() {
+		return dob;
+	}
+	public boolean setDob(String dob) throws ParseException {  {
+		 try
+		 {
+		 String s = dob;
+		  SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		  sdf.setLenient(false);
+		  Date d = (Date) sdf.parse(s);
+		  Calendar c = Calendar.getInstance();
+		  c.setTime(d);
+		  int year = c.get(Calendar.YEAR);
+		  int month = c.get(Calendar.MONTH) + 1;
+		  int date = c.get(Calendar.DATE);
+		  LocalDate l1 = LocalDate.of(year, month, date);
+		  LocalDate now1 = LocalDate.now();
+		  Period diff1 = Period.between(l1, now1);
+		  int age=diff1.getYears();
+		  if(age>18&&age<100){
+			  return true;
+		  }else{
+			  System.out.println("INVALID AGE PLEASE TRY AGAIN");
+			  return false;
+		  }
+		 }
+		 catch (Exception e)
+		 {
+			 System.out.println("Please enter date in DD/MM/YYYY format");
+			 return false;
+		 }
+	    }
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public boolean getKycenabled() {
+		return kycenabled;
+	}
+	public void setKycenabled(boolean kycenabled) {
+		this.kycenabled = kycenabled;
+	}
+	public String getAadharnumber() {
+		return aadharnumber;
+	}
+	public boolean setAadharnumber(String adharnumber){
+        if(adharnumber.matches("[0-9]+") && adharnumber.length()<=12)
+        { 
+    	    	this.aadharnumber=adharnumber;
+    	    	return true; 
+      }else{
+    	  return false;  
+      }	
+	}
+
+	public ArrayList<String> getSavingsAccount() {
+		return savingsAccount;
+	}
+
+	public boolean setSavingsAccount() {
+		int i=savingsAccount.size();
+		if(i==0)
+		{
+			savingsAccount.add("SA"+customernumber+"5001");
+			savingsActive.add(true);
+			saCreateDate.add(today);
+			return true;
+		}
+		else
+		{
+			if(savingsActive.contains(true))
+			{
+				System.out.println("Active account exists already. Please disable it before adding another account");
+				return false;
+			}
+			else
+			{
+				Integer number = Integer.parseInt(savingsAccount.get(i-1).substring(17));
+				savingsAccount.add("SA"+customernumber+ ++number);
+				savingsActive.add(true);
+				saCreateDate.add(today);
+				return true;
+			}
+		}	
+		}
+
+	public ArrayList<Boolean> getSavingsActive() {
+		return savingsActive;
+	}
+
+
+	public ArrayList<String> getSaCreateDate() {
+		return saCreateDate;
+	}
+
+
+	public ArrayList<String> getCurrentAccount() {
+		return currentAccount;
+	}
+
+	public void setCurrentAccount(ArrayList<String> currentAccount) {
+		this.currentAccount = currentAccount;
+	}
+
+	public ArrayList<Boolean> getCaActive() {
+		return caActive;
+	}
+
+	public ArrayList<String> getCaCreateDate() {
+		return caCreateDate;
+	}
+
+	public ArrayList<String> getLoanAccount() {
+		return loanAccount;
+	}
+
+	public void setLoanAccount(ArrayList<String> loanAccount) {
+		this.loanAccount = loanAccount;
+	}
+
+	public ArrayList<Boolean> getLaActive() {
+		return laActive;
+	}
+
+	public ArrayList<String> getLaCreateDate() {
+		return laCreateDate;
+	}
+
+	public ArrayList<String> getDematAccount() {
+		return dematAccount;
+	}
+
+	public void setDematAccount(ArrayList<String> dematAccount) {
+		this.dematAccount = dematAccount;
+	}
+
+	public ArrayList<Boolean> getDaActive() {
+		return daActive;
+	}
+
+	public ArrayList<String> getDaCreateDate() {
+		return daCreateDate;
+	}
+
+	public ArrayList<String> getDebitCard() {
+		return debitCard;
+	}
+
+	public void setDebitCard(ArrayList<String> debitCard) {
+		this.debitCard = debitCard;
+	}
+
+	public ArrayList<Boolean> getDcActive() {
+		return dcActive;
+	}
+
+	public void setDcActive(ArrayList<Boolean> dcActive) {
+		this.dcActive = dcActive;
+	}
+
+	public ArrayList<String> getDcCreateDate() {
+		return dcCreateDate;
+	}
+
+	public void setDcCreateDate(ArrayList<String> dcCreateDate) {
+		this.dcCreateDate = dcCreateDate;
+	}
+
+	public ArrayList<String> getCreditCard() {
+		return creditCard;
+	}
+
+	public void setCreditCard(ArrayList<String> creditCard) {
+		this.creditCard = creditCard;
+	}
+
+	public ArrayList<Boolean> getCcActive() {
+		return ccActive;
+	}
+
+	public void setCcActive(ArrayList<Boolean> ccActive) {
+		this.ccActive = ccActive;
+	}
+
+	public ArrayList<String> getCcCreateDate() {
+		return ccCreateDate;
+	}
+
+	public void setCcCreateDate(ArrayList<String> ccCreateDate) {
+		this.ccCreateDate = ccCreateDate;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
+	
+	
+	/*public void run(){
+		
+		 CIDCreatePage c1 =new  CIDCreatePage();
+		 c1.setCustomernumber(500101012042511L);
+		 System.out.println(c1.getCustomernumber());
+		
+	}*/
+
+}
