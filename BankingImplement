@@ -4,21 +4,25 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.sql.Date;
+import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class BankingImplement {
+public class BankingImplement implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
 	Scanner input = new Scanner(System.in);
-	BankingImplement ObjectIO = new BankingImplement();
 	TreeMap<Long, Customer>	map1 = new TreeMap<>();
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");  
 	LocalDate now = LocalDate.now();  
@@ -52,162 +56,446 @@ public class BankingImplement {
 		while(it.hasNext())
 		{
 			l=it.next();
-			WriteObjectToFile(map1.get(l));
+			Customer c= map1.get(l);
+			WriteObjectToFile(c);
 			
 		}
 	}
 
-	
-	public void WriteObjectToFile(Object serObj) {
+	public void WriteObjectToFile(Customer c) {
 		 
         try {
  
             FileOutputStream fileOut = new FileOutputStream("F:\\Nihas\\PadhohBanking\\Customer.txt",true);
             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-            objectOut.writeObject(serObj);
-            objectOut.close();
- 
+            objectOut.writeObject(c); 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 	
-	public static boolean isValidDate(String DOB)
-    {
-	 try
-	 {
-	 String s = DOB;
-	  SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-	  sdf.setLenient(false);
-	  Date d = (Date) sdf.parse(s);
-	  Calendar c = Calendar.getInstance();
-	  c.setTime(d);
-	  int year = c.get(Calendar.YEAR);
-	  int month = c.get(Calendar.MONTH) + 1;
-	  int date = c.get(Calendar.DATE);
-	  LocalDate l1 = LocalDate.of(year, month, date);
-	  LocalDate now1 = LocalDate.now();
-	  Period diff1 = Period.between(l1, now1);
-	  int age=diff1.getYears();
-	  if(age>18&&age<100){
-		  return true;
-	  }else{
-		  System.out.println("INVALID AGE PLEASE TRY AGAIN");
-		  return false;
-	  }
-	 }
-	 catch (Exception e)
-	 {
-		 System.out.println("Please enter date in DD/MM/YYYY format");
-		 return false;
-	 }
-    }
-	 
-	 public boolean isValidAdhar(String adharnumber){
-              if(adharnumber.matches("[0-9]+")){ 
-            	    if(adharnumber.length()<=12){
-            	    	return true;
-            	    }
-            	  
-              }
-			return false;
-              }
-	 
-	public  boolean isValidName(String name){
-		if(name.matches("a-zA-Z+")){                              
-			return true;
-		}
-		else 
-		return false;
-	}
-	
-	public boolean isValidNumber(long adharnumber){
-		String s =Long.toString(adharnumber);   
-		if(s.length()<=15){
-			
-		}
-		return true;
-	}
-	
-	
-	
-	public void createCID() throws ParseException{
+	public void createCID() throws ParseException, FileNotFoundException{
 	        Customer c1 =new  Customer();
+	        if(map1.isEmpty())
+	        {
+	        	c1.setCustomernumber(500101012042510l);
+	        	c1.setToday(today);
+	        }
+	        else {
+	        c1.setCustomernumber(map1.lastKey()+1);
+        	c1.setToday(today);
+	        }
 		    System.out.print("Enter Customer Name : "  );
 		    String Name=input.next();
-		    boolean names=isValidName(Name);
-		    if(names){
-		    	c1.setCustomername(Name);
-		    }else{
-		    	while(!names)
-		    		System.err.println("INVALID NAME");
+		    boolean value=c1.setCustomername(Name);
+		    while(!value)
+		    	{
 		    	Name=input.next();
-		    	names=isValidName(Name);
+		    	value=c1.setCustomername(Name);
 		    }
 		    		    
-		    System.out.print("Customer DOB : ");
+		    System.out.print("Customer DOB (dd/mm/yyyy) : ");
 		    String DOB=input.next();
-		    boolean value = isValidDate(DOB);
-		    if(value){
-		    	c1.setDob(DOB);
-		    }else{
+		    value = c1.setDob(DOB);
 		   while(!value){
-			   System.out.println("Inavlid pleas enter again");
 			   DOB=input.next();
-			   value = isValidDate(DOB);
+			   value = c1.setDob(DOB);
 		   }
-		    
-		    System.out.println("Customer Address : "+input.next());
-			System.out.println("KYC Enabled : "+input.next());
+		    System.out.println("Customer Address : ");
+		    c1.setAddress(input.next());
+			System.out.println("KYC Enabled(Yes/No) : ");
+			String kyc =input.next();
+			while(!value) {
+				if(kyc.equalsIgnoreCase("yes"))
+				c1.setKycenabled(true);
+				else if (kyc.equalsIgnoreCase("no"))
+				c1.setKycenabled(false);
+				else
+				{
+				System.err.println("Invalid Entry, please try again");
+				value=false;
+				}
+			}
 			System.out.print("Customer Aadhar Number : ");
             String adharnumber=input.next();
-            isValidAdhar(adharnumber);
-            boolean values=isValidAdhar(adharnumber);
-            if(values){
-            	c1.setAadharnumber(adharnumber);	
-            }else{
-            	while(!values){
-            		System.err.println("INVALID AADHARNUMBER");
+            value=c1.setAadharnumber(adharnumber);
+            	while(!value){
+            		System.err.println("INVALID AADHARNUMBER, Please enter again");
             		adharnumber=input.next();
-            		isValidAdhar(adharnumber);
-            		
+            		value=c1.setAadharnumber(adharnumber);            		
             	}
-            }
-		    }
+            c1.setCreateDate(today);
+            c1.setModifiedDate(today);
+            c1.setCustomerActive(true);
+            c1.setSavingsAccount();
+            addProducts(c1);
+            System.out.println("Customer added successfully. CID:"+c1.getCustomernumber());
 		    map1.put(c1.getCustomernumber(), c1);
+		    SaveMap();
 
+	}
+	
+public void addProducts(Customer c1) {
+	boolean value = false;
+	boolean outer = false;
+	while(!outer)
+		{
+		while(!value)
+			{
+				System.out.println("Select Products To Associated With "+ c1.getCustomernumber() + " : ");
+				System.out.println("For Saving Account                    Press 1");
+				System.out.println("For Current Account                   Press 2");
+				System.out.println("For Loan Account                      Press 3");
+				System.out.println("For DEMAT Account                     Press 4");
+				System.out.println("For Cards                             Press 5 ");
+				System.out.println("To return to previous menu            Press 9 ");
+				System.out.print("Enter Your Choice : ");
+				String choices=input.next();
+				if(choices.equals("1")){
+					c1.setSavingsAccount();
+				}else if(choices.equals("2")){
+					c1.setCurrentAccount();
+				}else if(choices.equals("3")){
+					c1.setLoanAccount();
+				}else if(choices.equals("4")){
+					c1.setDematAccount();
+				}else if(choices.equals("5")){
+					System.out.println("For Debit Cards                Press 1 ");
+					System.out.println("For Credit Cards               Press 2 ");
+					System.out.print("Enter Your Choice : ");
+					choices=input.next();
+					if(choices.equals("1")){
+						c1.setDebitCard();
+					}else if(choices.equals("2")){
+						c1.setCreditCard();
+					}
+					else
+					{
+						System.err.println("Invalid choice, please try again");
+					}
+				}else if(choices.equals("9")) {
+						outer=true;
+						break;
+				}else
+				{
+					System.err.println("Invalid choice, please try again");
+				}
+			}
+		}
+}
+
+public void printProducts(Customer c)
+{
+	System.out.println("Products Associated:");
+	ArrayList<String> savingsAccount = c.getSavingsAccount();
+	ArrayList<Boolean> savingsActive = c.getSavingsActive();
+	ArrayList<String> saCreateDate = c.getSaCreateDate();
+	ArrayList<String> currentAccount = c.getCurrentAccount();
+	ArrayList<Boolean> caActive = c.getCaActive();
+	ArrayList<String> caCreateDate = c.getCaCreateDate();
+	ArrayList<String> loanAccount = c.getLoanAccount();
+	ArrayList<Boolean> laActive = c.getLaActive();
+	ArrayList<String> laCreateDate = c.getLaCreateDate();
+	ArrayList<String> dematAccount = c.getDematAccount();
+	ArrayList<Boolean> daActive = c.getDaActive();
+	ArrayList<String> daCreateDate = c.getDaCreateDate();
+	ArrayList<String> debitCard = c.getDebitCard();
+	ArrayList<Boolean> dcActive = c.getDcActive();
+	ArrayList<String> dcCreateDate = c.getDcCreateDate();	
+	ArrayList<String> creditCard = c.getCreditCard();
+	ArrayList<Boolean> ccActive = c.getCcActive();
+	ArrayList<String> ccCreateDate = c.getCcCreateDate();
+	printProductArray(savingsAccount, savingsActive, saCreateDate, 1);
+	printProductArray(currentAccount, caActive, caCreateDate, 2);
+	printProductArray(loanAccount, laActive, laCreateDate, 3);
+	printProductArray(dematAccount, daActive, daCreateDate, 4);
+	printProductArray(debitCard, dcActive, dcCreateDate, 5);
+	printProductArray(creditCard, ccActive, ccCreateDate, 6);
+}
+public void printProductArray(ArrayList<String> number, ArrayList<Boolean> status, ArrayList<String> openDate, int type)
+{
+	String acType="";
+	switch (type) {
+	case 1: 
+		acType="Savings Account";
+		break;		
+		
+	case 2:
+		acType="Current Account";
+		break;
+	
+	case 3:
+		acType="Loan Account";
+		break;
+	
+	case 4:
+		acType="Demat Account";
+		break;
+	
+	case 5:
+		acType="Debit card";
+		break;
+	
+	case 6:
+		acType="Credit card";
+		break;
+		
+	}
+	
+	for(int i=0;i<number.size();i++)
+	{
+		System.out.println("	"+acType+" "+ (i+1) +":");
+		String number1=number.get(i);
+		if(type==5 || type==6)
+			{
+			int j=0;
+			StringBuffer temp =new StringBuffer();
+			while(j<number1.length())
+				{
+					if(j>number1.length()-5)
+					{
+						temp.append(number1.charAt(j));
+					}
+					else
+					{
+						temp.append("X");
+					}
+					j++;
+				}
+			number1 = temp.toString();
+			}
+		System.out.println("		number: "+number1);
+		String status1= status.get(i)?"Active":"Disabled";
+		System.out.println("		status: "+status1);
+		System.out.println("		open date: "+openDate.get(i));	
+	}
+	
+}
+public void updateCID() throws FileNotFoundException, ParseException{
+		
+		System.out.println("Enter Customer Id : ");
+		String CId=input.next();
+		if(!CId.matches("[0-9]+")) {
+			System.err.println("CID cannot contain characters");
+			updateCID();
+		}
+		Long CustomerId = Long.parseLong(CId);
+		if(map1.containsKey(CustomerId)){
+				Customer c =map1.get(CustomerId);
+	        	c.setToday(today);
+				String active = c.getCustomerActive()?"Yes":"No";
+				System.out.println("CID active : "  +active);
+				System.out.println("Customer Name : "+c.getCustomername());
+				System.out.println("Customer DOB : " +c.getDob());
+				System.out.println("Customer Address : "+c.getAddress());
+				String kyc = c.getCustomerActive()?"Yes":"No";
+				System.out.println("KYC Enabled : "+kyc);
+				System.out.println("Customer Aadhar Number : "+c.getAadharnumber());
+				System.out.println("CID open date :  "+c.getCreateDate());
+				System.out.println("CID modified date : "+c.getModifiedDate());
+				printProducts(c);
+				modifyProducts(c);
+				c.setModifiedDate(today);
+				map1.put(c.getCustomernumber(), c);
+				SaveMap();
+		}else{
+			System.err.println("Invalid Customer Number");
+			updateCID();
+		}
+		
+}
+	public void modifyProducts(Customer c){	
+		boolean value = false;
+		boolean inner = false;
+		while(!value)
+			{
+			System.out.println("To Add New Product                           Press 1");
+			System.out.println("To Disable Existing Product                  Press 2");
+			System.out.println("To Close The CID                             Press 3");
+			System.out.println("To return to previous menu          		 Press 9 ");
+			System.out.print("Enter Your Option :  ");
+			
+			String choice=input.next();
+			if(choice.equals("1")){
+				addProducts(c);
+			}else if(choice.equals("2")){
+					while(!inner) {
+					System.out.println("For Saving Account -                Press 1");
+					System.out.println("For Current Account -               Press 2");
+					System.out.println("For Loan Account -                  Press 3");
+					System.out.println("For Demat Account -                 Press 4");
+					System.out.println("To return to previous menu          Press 9 ");
+					System.out.print("Enter Your Choice : ");
+					String choice2=input.next();
+					if(choice2.equals("1")){
+						boolean temp = false;
+						printProductArray(c.getSavingsAccount(), c.getSavingsActive(), c.getSaCreateDate(), 1);
+						while(!temp) {
+						System.out.println("Select the account to be disabled");
+						String k = input.next();
+						int m = Integer.parseInt(k);
+							if(m<=c.getSavingsAccount().size()) {
+								System.out.println("Please confirm if you want to disable the account:"+c.getSavingsAccount().get(m-1));
+								if(input.next().equalsIgnoreCase("yes")){
+									c.setSavingsActive(m-1);
+									temp=true;
+									System.out.println("Savings account disabled");
+								}else
+									break;
+							}else
+								System.err.println("Invalid input,, Please select and enter number from the displayed account(s)");
+						}
+						}
+					else if(choice2.equals("2")){
+						boolean temp = false;
+						printProductArray(c.getCurrentAccount(), c.getCaActive(), c.getCaCreateDate(), 2);
+						while(!temp) {
+						System.out.println("Select the account to be disabled");
+						String m = input.next();
+						int k = Integer.parseInt(m);
+							if(k<=c.getCurrentAccount().size()) {
+								System.out.println("Please confirm if you want to disable the account:"+c.getCurrentAccount().get(k-1));
+								if(input.next().equalsIgnoreCase("yes")){
+									c.setCaActive(k-1);
+									temp=true;
+									System.out.println("Current account disabled");
+								}else
+									break;
+							}else
+								System.err.println("Invalid input,, Please select and enter number from the displayed account(s)");
+						}					
+					}else if(choice2.equals("3")){
+						boolean temp = false;
+						printProductArray(c.getLoanAccount(), c.getLaActive(), c.getLaCreateDate(), 3);
+						while(!temp) {
+						System.out.println("Select the account to be disabled");
+						String m = input.next();
+						int k = Integer.parseInt(m);
+						if(k<=c.getLoanAccount().size()) {
+								System.out.println("Please confirm if you want to disable the account:"+c.getLoanAccount().get(k-1));
+								if(input.next().equalsIgnoreCase("yes")){
+									c.setLaActive(k-1);
+									temp=true;
+									System.out.println("Loan account disabled");
+								}else
+									break;
+							}else
+								System.err.println("Invalid input,, Please select and enter number from the displayed account(s)");
+					}
+					}else if(choice2.equals("4")){
+						boolean temp = false;
+						printProductArray(c.getDematAccount(), c.getDaActive(), c.getDaCreateDate(), 4);
+						while(!temp) {
+						System.out.println("Select the account to be disabled");
+						String m = input.next();
+						int k = Integer.parseInt(m);
+						if(k<=c.getDematAccount().size()) {
+								System.out.println("Please confirm if you want to disable the account:"+c.getDematAccount().get(k-1));
+								if(input.next().equalsIgnoreCase("yes")){
+									c.setDaActive(k-1);
+									temp=true;
+									System.out.println("Demat account disabled");
+								}else
+									break;
+							}else
+								System.err.println("Invalid input,, Please select and enter number from the displayed account(s)");					
+					}
+					}else if(choice2.equals("9")) {
+						inner = true;
+						break;
+					}
+					else
+						System.err.println("Invalid input, please try again");
+					}
+			}else if(choice.equals("3")){
+				value = false;
+				while(!value)
+				{
+				System.out.println("Do You Want To Disable CID(Yes/No):");
+				System.out.print("Enter Your decision : ");
+				String decision=input.next();
+				switch(decision.toLowerCase())
+				{
+				case "yes":
+					if(c.getSavingsActive().contains(true) || c.getCaActive().contains(true) || c.getDaActive().contains(true) || c.getLaActive().contains(true) || c.getCcActive().contains(true) || c.getDcActive().contains(true))
+					{
+						System.err.println("Please disable all products associated before closing CID");
+						value = true;
+						break;
+					}
+					else
+						c.setCustomerActive(false);
+					value = true;
+					break;
+				case "no":
+					value = true;
+					break;
+				default :
+				System.err.println("Invalid Option");
+				continue;
+				}
+				}
+			}	else if(choice.equals("9")) {
+				value = true;
+				break;
+			}
+			}
+	}
+
+public void hotlistCard() throws FileNotFoundException
+{
+	System.out.println("..................................................");
+	System.out.println("           Welcome To Padho Bank         ");
+	System.out.println("..................................................");
+	System.out.println("		   Card Hotlisting");
+	System.out.println("Enter card number to hotlist:");
+	String card = input.next();
+	int count=0;
+	if(card.matches("[0-9]+") && card.length()==16)
+	{
+			Set<Long> allCID = map1.keySet();
+			Iterator<Long> it = allCID.iterator();
+			while(it.hasNext()) {
+				Customer c = map1.get(it.next());
+	        	c.setToday(today);
+				ArrayList<String> debit = c.getDebitCard();
+				ArrayList<String> credit = c.getCreditCard();
+				if(debit.contains(card) || credit.contains(card))
+				{
+					count++;
+					for(int i=0;i<debit.size();i++)
+					{
+						if(debit.get(i).equals(card)) {
+							System.out.println("Please confirm if you want to disable the card:"+c.getDebitCard().get(i));
+							if(input.next().equalsIgnoreCase("yes")){
+								c.setDcActive(i);
+								System.out.println("Debit card disabled");
+							}
+						}
+					}
+					for(int i=0;i<credit.size();i++)
+					{
+						if(credit.get(i).equals(card)) {
+							System.out.println("Please confirm if you want to disable the card:"+c.getCreditCard().get(i));
+							if(input.next().equalsIgnoreCase("yes")){
+								c.setCcActive(i);
+								System.out.println("Debit card disabled");
+							}
+						}
+						c.setModifiedDate(today);
+						map1.put(c.getCustomernumber(), c);
+						SaveMap();
+					}
+				}
+			}
+			if(count==0)
+				System.err.println("Card not found in Inventory");
+	}
+	else
+	{
+		System.err.println("Invalid card number, please try again");
+		hotlistCard();
 	}
 }
 
-
-/*
---------------------------------------------------------------------------------------------------------
-package file;
-public class MaskAccountNumber {
-	
-	public void pass(){
-	String acc="50010101012042510";
-	int i=0;
-	StringBuffer temp =new StringBuffer();
-	while(i<(acc.length()))
-	{
-		if(i>acc.length()-5)
-		{
-			temp.append(acc.charAt(i));
-		}
-		else
-		{
-			temp.append("X");
-		}
-		i++;
-		}
-    System.out.println(temp); 
 }
-
-}
-
-
-
-OUTPUT:
-XXXXXXXXXXXXX2510
-*/
